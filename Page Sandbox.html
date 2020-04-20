@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<!-- saved from url=(0050)https://throbbing-water-5f41.3hmoobtv.workers.dev/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Page Sandbox</title>
+  
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+  <!--<base target="_blank">--><base href="." target="_blank">
+  <style>
+    body {
+      padding: 0 0.5em;
+    }
+    .box {
+      margin-top: 1em;
+    }
+    #txtURL {
+      width: 100%;
+      height: 2em;
+      text-indent: 0.5em;
+      padding: 0.25em 0;
+    }
+    #btnGo {
+      width: 100%;
+      font-size: 1.5em;
+    }
+    #list a {
+      margin: 1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <input id="txtURL" type="text" value="www.google.com" autofocus="">
+  </div>
+  <div class="box">
+    <button id="btnGo">Go</button>
+  </div>
+  <div class="box">
+    <span>切换线路:</span>
+    <select id="selNode"><option id="--demo-hk" value="demo-hk">演示服务-香港节点</option><option id="--demo-sg" value="demo-sg">演示服务-新加坡节点</option><option id="--mysite" value="mysite">当前站点</option></select>
+  </div>
+  <div class="box" id="list"><a rel="noopener noreferrer" href="https://throbbing-water-5f41.3hmoobtv.workers.dev/-----https://www.google.com/"><img width="128" height="128" src="./Page Sandbox_files/google.png"></a><a rel="noopener noreferrer" href="https://throbbing-water-5f41.3hmoobtv.workers.dev/-----https://www.youtube.com/"><img width="128" height="128" src="./Page Sandbox_files/youtube.png"></a><a rel="noopener noreferrer" href="https://throbbing-water-5f41.3hmoobtv.workers.dev/-----https://twitter.com/google"><img width="128" height="128" src="./Page Sandbox_files/twitter.png"></a><a rel="noopener noreferrer" href="https://throbbing-water-5f41.3hmoobtv.workers.dev/-----https://www.flickr.com/"><img width="128" height="128" src="./Page Sandbox_files/flickr.png"></a><a rel="noopener noreferrer" href="https://throbbing-water-5f41.3hmoobtv.workers.dev/-----https://www.quora.com/topic/JavaScript-programming-language"><img width="128" height="128" src="./Page Sandbox_files/quora.png"></a><a rel="noopener noreferrer" href="https://throbbing-water-5f41.3hmoobtv.workers.dev/-----https://www.twitch.tv/"><img width="128" height="128" src="./Page Sandbox_files/twitch.png"></a><a rel="noopener noreferrer" href="https://throbbing-water-5f41.3hmoobtv.workers.dev/-----https://www.reddit.com/"><img width="128" height="128" src="./Page Sandbox_files/reddit.png"></a><a rel="noopener noreferrer" href="https://throbbing-water-5f41.3hmoobtv.workers.dev/-----https://zh.wikipedia.org/"><img width="128" height="128" src="./Page Sandbox_files/wiki.png"></a><a rel="noopener noreferrer" href="https://throbbing-water-5f41.3hmoobtv.workers.dev/-----https://gist.github.com/"><img width="128" height="128" src="./Page Sandbox_files/gist.png"></a><a rel="noopener noreferrer" href="https://throbbing-water-5f41.3hmoobtv.workers.dev/-----https://facebook.com/Google/"><img width="128" height="128" src="./Page Sandbox_files/facebook.png"></a><a rel="noopener noreferrer" href="https://throbbing-water-5f41.3hmoobtv.workers.dev/-----https://www.blogger.com/"><img width="128" height="128" src="./Page Sandbox_files/blogger.png"></a></div>
+  <script>
+    const PAGE_CONF_SET = 110
+    const PAGE_CONF_GET = 111
+
+    const SW_CONF_RETURN = 112
+    const SW_CONF_CHANGE = 113
+
+    const PAGE_READY_CHECK = 200
+    const SW_READY = 201
+
+    const sw = navigator.serviceWorker
+
+
+    sw.addEventListener('message', onSwMsg)
+    sendMsgToSw(PAGE_READY_CHECK)
+
+    btnGo.onclick = function() {
+      const text = txtURL.value.trim()
+      if (text) {
+        const url = './-----' + text
+        open(url, '_blank', 'noopener,noreferrer')
+      }
+    }
+    txtURL.onkeypress = function(e) {
+      if (e.keyCode === 13) {
+        btnGo.onclick()
+      }
+    }
+    txtURL.setSelectionRange(0, txtURL.value.length)
+
+
+    function onSwMsg(e) {
+      const [cmd, msg] = e.data
+
+      switch (cmd) {
+      case SW_CONF_RETURN:
+        conf = msg
+        showConf()
+        break
+
+      case SW_CONF_CHANGE:
+        conf = msg
+        updateSelected()
+        break
+
+      case SW_READY:
+        console.log('sw ready')
+        showIcons()
+        sendMsgToSw(PAGE_CONF_GET)
+        break
+      }
+    }
+
+    function onSwFail(err) {
+      txtURL.value = err
+    }
+
+    selNode.onchange = function() {
+      const item = this.options[this.selectedIndex]
+      const node = item.value
+      conf.node_default = node
+      sendMsgToSw(PAGE_CONF_SET, conf)
+    }
+
+    function sendMsgToSw(cmd, val) {
+      const ctl = sw.controller
+      if (!ctl) {
+        console.log('ctl is null')
+        return
+      }
+      ctl.postMessage([cmd, val])
+    }
+
+    const SITE_LIST = [
+      ['google', ''],
+      ['youtube', ''],
+      ['twitter', 'twitter.com/google'],
+      ['flickr', ''],
+      ['quora', 'www.quora.com/topic/JavaScript-programming-language'],
+      ['twitch', 'www.twitch.tv/'],
+      ['reddit', ''],
+      ['wiki', 'zh.wikipedia.org/'],
+      ['gist', 'gist.github.com/'],
+      ['facebook', 'facebook.com/Google/'],
+      ['blogger', ''],
+    ]
+
+    function showIcons() {
+      list.innerHTML = SITE_LIST.map(v => {
+        let [id, url] = v
+        url = url || `www.${id}.com/`
+        return `\
+<a rel="noopener noreferrer" href=./-----https://${url}>\
+<img width=128 height=128 src=__sys__/assets/ico/${id}.png></a>`
+      }).join('')
+    }
+
+    function addNodeItem(id, text) {
+      const optEl = document.createElement('option')
+      optEl.id = '--' + id
+      optEl.text = text
+      optEl.value = id
+      selNode.appendChild(optEl)
+    }
+
+    function updateSelected() {
+      const id = conf.node_default
+      const item = document.getElementById('--' + id)
+      if (item) {
+        item.selected = true
+      } else {
+        console.warn('unknown node:', id)
+      }
+    }
+
+    function showConf() {
+      for (const [id, node] of Object.entries(conf.node_map)) {
+        if (!node.hidden) {
+          addNodeItem(id, node.label)
+        }
+      }
+      updateSelected()
+    }
+  </script>
+
+<audio controls="controls" style="display: none;"></audio><!----><iframe src="./Page Sandbox_files/lat_chk.html" id="latency_chk" style="position: fixed; z-index: -99; opacity: 0;"></iframe></body><style type="text/css">#yddContainer{display:block;font-family:Microsoft YaHei;position:relative;width:100%;height:100%;top:-4px;left:-4px;font-size:12px;border:1px solid}#yddTop{display:block;height:22px}#yddTopBorderlr{display:block;position:static;height:17px;padding:2px 28px;line-height:17px;font-size:12px;color:#5079bb;font-weight:bold;border-style:none solid;border-width:1px}#yddTopBorderlr .ydd-sp{position:absolute;top:2px;height:0;overflow:hidden}.ydd-icon{left:5px;width:17px;padding:0px 0px 0px 0px;padding-top:17px;background-position:-16px -44px}.ydd-close{right:5px;width:16px;padding-top:16px;background-position:left -44px}#yddKeyTitle{float:left;text-decoration:none}#yddMiddle{display:block;margin-bottom:10px}.ydd-tabs{display:block;margin:5px 0;padding:0 5px;height:18px;border-bottom:1px solid}.ydd-tab{display:block;float:left;height:18px;margin:0 5px -1px 0;padding:0 4px;line-height:18px;border:1px solid;border-bottom:none}.ydd-trans-container{display:block;line-height:160%}.ydd-trans-container a{text-decoration:none;}#yddBottom{position:absolute;bottom:0;left:0;width:100%;height:22px;line-height:22px;overflow:hidden;background-position:left -22px}.ydd-padding010{padding:0 10px}#yddWrapper{color:#252525;z-index:10001;background:url(chrome-extension://eopjamdnofihpioajgfdikhhbobonhbb/ab20.png);}#yddContainer{background:#fff;border-color:#4b7598}#yddTopBorderlr{border-color:#f0f8fc}#yddWrapper .ydd-sp{background-image:url(chrome-extension://eopjamdnofihpioajgfdikhhbobonhbb/ydd-sprite.png)}#yddWrapper a,#yddWrapper a:hover,#yddWrapper a:visited{color:#50799b}#yddWrapper .ydd-tabs{color:#959595}.ydd-tabs,.ydd-tab{background:#fff;border-color:#d5e7f3}#yddBottom{color:#363636}#yddWrapper{min-width:250px;max-width:400px;}</style></html>
